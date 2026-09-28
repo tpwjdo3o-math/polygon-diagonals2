@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>다각형의 대각선 공식 발견 탐구실</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: 'Pretendard', sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .handwriting {
+      font-family: 'Gaegu', cursive;
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.15); opacity: 0.3; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    .pulse-effect {
+      animation: pulse-ring 2s infinite ease-in-out;
+    }
+    .line-flow {
+      stroke-dasharray: 8;
+      animation: dash 1s linear infinite;
+    }
+    @keyframes dash {
+      to {
+        stroke-dashoffset: -16;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-bold text-xl shadow-md shadow-indigo-100">
+          📐
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg md:text-xl font-black text-slate-800 tracking-tight">다각형의 대각선 공식 발견소</h1>
+            <span class="text-xs bg-indigo-100 text-indigo-700 font-bold px-2 py-0.5 rounded-full">중1 수학</span>
+          </div>
+          <p class="text-xs text-slate-500">외우지 말고 직접 연결해서 왜 그런지 발견해보자!</p>
+        </div>
+      </div>
+
+      <!-- Audio Mute and Reset -->
+      <div class="flex items-center gap-2">
+        <button id="soundToggleBtn" class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-100 flex items-center gap-1.5 transition">
+          <span id="soundIcon">🔊</span> <span id="soundText">효과음 켜짐</span>
+        </button>
+        <button id="resetAppBtn" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-slate-700 transition">
+          🔄 처음부터 다시하기
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto p-4 md:p-6 w-full flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- Left & Center Column: Canvas and Interactive Polygon (7 cols on lg) -->
+    <section class="lg:col-span-7 flex flex-col gap-4">
+
+      <!-- Step Navigator Tab Bar -->
+      <div class="grid grid-cols-3 gap-2 bg-slate-200/80 p-1.5 rounded-2xl">
+        <button id="tabStep1" onclick="setStep(1)" class="step-tab py-2.5 px-2 rounded-xl font-bold text-xs md:text-sm text-center transition flex flex-col sm:flex-row items-center justify-center gap-1 bg-white text-indigo-700 shadow-sm">
+          <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-xs flex items-center justify-center font-black">1</span>
+          <span>왜 -3일까?</span>
+        </button>
+        <button id="tabStep2" onclick="setStep(2)" class="step-tab py-2.5 px-2 rounded-xl font-bold text-xs md:text-sm text-center transition flex flex-col sm:flex-row items-center justify-center gap-1 text-slate-600 hover:text-slate-900">
+          <span class="w-5 h-5 rounded-full bg-slate-400 text-white text-xs flex items-center justify-center font-black">2</span>
+          <span>모든 점 긋기</span>
+        </button>
+        <button id="tabStep3" onclick="setStep(3)" class="step-tab py-2.5 px-2 rounded-xl font-bold text-xs md:text-sm text-center transition flex flex-col sm:flex-row items-center justify-center gap-1 text-slate-600 hover:text-slate-900">
+          <span class="w-5 h-5 rounded-full bg-slate-400 text-white text-xs flex items-center justify-center font-black">3</span>
+          <span>왜 ÷2일까?</span>
+        </button>
+      </div>
+
+      <!-- Polygon Setting Card -->
+      <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <label class="text-sm font-bold text-slate-700 whitespace-nowrap">꼭짓점 수 (n):</label>
+          <div class="flex items-center gap-2">
+            <input type="range" id="nSlider" min="3" max="10" value="5" class="w-32 md:w-44 accent-indigo-600 cursor-pointer">
+            <span id="nBadge" class="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700 font-extrabold flex items-center justify-center text-sm shadow-xs">
+              5
+            </span>
+          </div>
+        </div>
+
+        <!-- Quick N preset chips -->
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <button onclick="setN(3)" class="n-btn px-2.5 py-1 text-xs font-bold rounded-lg border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50 transition" data-n="3">삼각형</button>
+          <button onclick="setN(4)" class="n-btn px-2.5 py-1 text-xs font-bold rounded-lg border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50 transition" data-n="4">사각형</button>
+          <button onclick="setN(5)" class="n-btn px-2.5 py-1 text-xs font-bold rounded-lg bg-indigo-600 text-white border border-indigo-600 transition" data-n="5">오각형</button>
+          <button onclick="setN(6)" class="n-btn px-2.5 py-1 text-xs font-bold rounded-lg border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50 transition" data-n="6">육각형</button>
+          <button onclick="setN(8)" class="n-btn px-2.5 py-1 text-xs font-bold rounded-lg border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50 transition" data-n="8">팔각형</button>
+        </div>
+      </div>
+
+      <!-- SVG Drawing Interactive Stage -->
+      <div class="bg-white rounded-3xl p-4 md:p-6 border border-slate-200 shadow-sm relative flex flex-col items-center justify-center min-h-[420px] md:min-h-[480px]">
+        
+        <!-- Live Action Banner -->
+        <div id="stepInstruction" class="w-full bg-indigo-50/80 border border-indigo-100 rounded-2xl p-3 mb-3 text-center transition-all">
+          <p class="text-sm font-bold text-indigo-900" id="instructionTitle">👉 기준 꼭짓점 A에서 다른 점들을 직접 눌러 연결해보세요!</p>
+          <p class="text-xs text-indigo-600 mt-0.5" id="instructionSub">이웃한 점이나 자기 자신을 누르면 무슨 일이 일어날까요?</p>
+        </div>
+
+        <!-- SVG Polygon Canvas -->
+        <div class="relative w-full max-w-[420px] aspect-square flex items-center justify-center">
+          <svg id="geoSvg" class="w-full h-full overflow-visible drop-shadow-sm" viewBox="0 0 400 400">
+            <!-- Layers: Background polygon edges, diagonals, duplicate lines, vertex nodes -->
+            <g id="polyFillLayer"></g>
+            <g id="polyBorderLayer"></g>
+            <g id="diagonalLayer"></g>
+            <g id="duplicateOverlayLayer"></g>
+            <g id="vertexLayer"></g>
+          </svg>
+        </div>
+
+        <!-- Feedback Floating Toast Inside Canvas -->
+        <div id="toastMessage" class="absolute bottom-6 px-4 py-2 rounded-xl text-xs md:text-sm font-extrabold shadow-lg transition-all duration-300 opacity-0 pointer-events-none transform translate-y-3 bg-slate-900 text-white">
+          알림
+        </div>
+
+        <!-- Stage Controller Controls for Step 2 and Step 3 -->
+        <div id="stageControls" class="w-full mt-3 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+          <!-- Step 1 Controls -->
+          <div id="step1Controls" class="w-full flex flex-wrap items-center justify-between gap-2">
+            <div class="text-xs text-slate-500">
+              현재 연결한 대각선: <span id="currentStep1DiagCount" class="font-bold text-indigo-600 text-sm">0</span> / <span id="maxStep1DiagCount" class="font-bold text-slate-700">2</span>개
+            </div>
+            <button onclick="autoConnectCurrentVertex()" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold px-3 py-1.5 rounded-xl transition">
+              ✨ 한 번에 모두 잇기
+            </button>
+          </div>
+
+          <!-- Step 2 Controls -->
+          <div id="step2Controls" class="w-full hidden flex-wrap items-center justify-between gap-2">
+            <div class="text-xs text-slate-600">
+              꼭짓점별 발사 현황: <span id="connectedVerticesCount" class="font-bold text-emerald-600 text-sm">0</span> / <span class="nDisplay font-bold">5</span>개 점 완료
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="playAllStep2Animation()" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-xl shadow-xs transition flex items-center gap-1">
+                ▶ 모든 점 자동 쏘기
+              </button>
+              <button onclick="resetStep2()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold px-2.5 py-1.5 rounded-xl transition">
+                초기화
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 3 Controls -->
+          <div id="step3Controls" class="w-full hidden flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <span class="text-xs font-bold text-slate-700">중복선(양방향 2가닥) 처리:</span>
+              <button id="dedupToggleBtn" onclick="toggleDedupMode()" class="px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-white shadow-xs transition flex items-center gap-1.5">
+                <span>✂️ 두 겹을 하나로 합치기 (÷2)</span>
+              </button>
+            </div>
+            <div class="text-xs text-slate-500">
+              상태: <span id="dedupStatusText" class="font-bold text-amber-700">두 번씩 센 상태 (2배)</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <section class="lg:col-span-5 flex flex-col gap-4">
+
+      <!-- Dynamic Math Formula Card -->
+      <div class="bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-5 shadow-lg border border-indigo-700/40 relative overflow-hidden">
+        <div class="absolute -right-8 -bottom-8 w-32 h-32 bg-indigo-500/20 rounded-full blur-2xl"></div>
+
+        <div class="flex items-center justify-between mb-3 border-b border-indigo-800/80 pb-3">
+          <span class="text-xs font-bold text-indigo-300 tracking-wider uppercase">대각선 공식 유도 현황</span>
+          <span class="text-xs bg-indigo-800/80 text-indigo-200 font-semibold px-2.5 py-0.5 rounded-full" id="shapeNameBadge">오각형 (n=5)</span>
+        </div>
+
+        <!-- Formula Builder Elements -->
+        <div class="space-y-3">
+          <!-- Step 1 Formula Item -->
+          <div id="formulaBox1" class="p-3 rounded-2xl bg-white/5 border border-white/10 transition-all">
+            <div class="flex items-center justify-between text-xs text-indigo-200 mb-1">
+              <span class="font-bold flex items-center gap-1.5">
+                <span class="w-4 h-4 rounded-full bg-indigo-500 text-white flex items-center justify-center text-[10px]">1</span>
+                한 꼭짓점에서 그을 수 있는 대각선
+              </span>
+              <span class="font-bold text-indigo-300">n - 3</span>
+            </div>
+            <div class="text-lg md:text-xl font-black text-amber-300 flex items-center gap-2">
+              <span id="f1Math">5 - 3 = 2개</span>
+            </div>
+            <p class="text-[11px] text-slate-300 mt-1 leading-snug">
+              자기 자신(1개)과 바로 옆 양쪽 이웃(2개) = <strong class="text-amber-300 font-bold">3개 제외!</strong>
+            </p>
+          </div>
+
+          <!-- Step 2 Formula Item -->
+          <div id="formulaBox2" class="p-3 rounded-2xl bg-white/5 border border-white/10 transition-all opacity-60">
+            <div class="flex items-center justify-between text-xs text-indigo-200 mb-1">
+              <span class="font-bold flex items-center gap-1.5">
+                <span class="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px]">2</span>
+                모든 꼭짓점에서 단순 계산 시
+              </span>
+              <span class="font-bold text-emerald-300">n × (n - 3)</span>
+            </div>
+            <div class="text-lg md:text-xl font-black text-emerald-300 flex items-center gap-2">
+              <span id="f2Math">5 × 2 = 10개 (중복 포함)</span>
+            </div>
+            <p class="text-[11px] text-slate-300 mt-1 leading-snug">
+              꼭짓점 <span class="nDisplay font-bold">5</span>개마다 각각 <span id="f2EachCount">2</span>개씩 쏘았으므로 곱함!
+            </p>
+          </div>
+
+          <!-- Step 3 Formula Item -->
+          <div id="formulaBox3" class="p-3 rounded-2xl bg-white/5 border border-white/10 transition-all opacity-60">
+            <div class="flex items-center justify-between text-xs text-indigo-200 mb-1">
+              <span class="font-bold flex items-center gap-1.5">
+                <span class="w-4 h-4 rounded-full bg-amber-500 text-white flex items-center justify-center text-[10px]">3</span>
+                실제 대각선의 총 개수
+              </span>
+              <span class="font-bold text-amber-300">n(n - 3) / 2</span>
+            </div>
+            <div class="text-xl md:text-2xl font-black text-yellow-300 flex items-center gap-2">
+              <span id="f3Math">10 ÷ 2 = 5개</span>
+            </div>
+            <p class="text-[11px] text-slate-300 mt-1 leading-snug">
+              대각선 1개는 양쪽 끝 점(A→C, C→A)에서 <strong class="text-yellow-300 font-bold">2번씩 겹쳐 셌으므로 2로 나눔!</strong>
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm flex flex-col gap-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🗣️</span>
+            <h3 class="font-black text-slate-800 text-sm md:text-base">내 말로 설명하는 수학 퀴즈</h3>
+          </div>
+          <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">개념 확인</span>
+        </div>
+
+        <!-- Question 1 -->
+        <div class="bg-slate-50 rounded-2xl p-3.5 border border-slate-200/80">
+          <p class="text-xs md:text-sm font-bold text-slate-800 mb-2">
+            Q1. 꼭짓점 \(n\)개 중 한 점에서 대각선을 그을 때 <span class="text-indigo-600 underline font-extrabold">왜 3을 뺄까요?</span>
+          </p>
+          <div class="space-y-1.5 text-xs">
+            <label class="flex items-start gap-2 p-2 rounded-xl border border-transparent hover:bg-white cursor-pointer transition">
+              <input type="radio" name="q1" value="wrong1" class="mt-0.5 accent-indigo-600">
+              <span class="text-slate-600">다각형에 꼭짓점이 최소 3개는 있어야 삼각형이 되니까</span>
+            </label>
+            <label class="flex items-start gap-2 p-2 rounded-xl border border-transparent hover:bg-white cursor-pointer transition">
+              <input type="radio" name="q1" value="correct" class="mt-0.5 accent-indigo-600">
+              <span class="text-slate-700 font-semibold"><span class="text-indigo-600 font-bold">[자기 자신 1개]</span>와 <span class="text-indigo-600 font-bold">[이웃한 꼭짓점 2개]</span>는 연결해도 대각선(둘레/변)이 아니므로</span>
+            </label>
+            <label class="flex items-start gap-2 p-2 rounded-xl border border-transparent hover:bg-white cursor-pointer transition">
+              <input type="radio" name="q1" value="wrong2" class="mt-0.5 accent-indigo-600">
+              <span class="text-slate-600">마주 보는 꼭짓점 3개와는 절대로 연결할 수 없어서</span>
+            </label>
+          </div>
+          <div id="q1Feedback" class="mt-2 text-xs font-bold hidden p-2 rounded-lg"></div>
+        </div>
+
+        <!-- Question 2 -->
+        <div class="bg-slate-50 rounded-2xl p-3.5 border border-slate-200/80">
+          <p class="text-xs md:text-sm font-bold text-slate-800 mb-2">
+            Q2. \(n(n-3)\)을 한 뒤 <span class="text-amber-600 underline font-extrabold">왜 2로 나눌까요?</span>
+          </p>
+          <div class="space-y-1.5 text-xs">
+            <label class="flex items-start gap-2 p-2 rounded-xl border border-transparent hover:bg-white cursor-pointer transition">
+              <input type="radio" name="q2" value="wrong1" class="mt-0.5 accent-indigo-600">
+              <span class="text-slate-600">대각선이 다각형을 2개의 도형으로 가르기 때문에</span>
+            </label>
+            <label class="flex items-start gap-2 p-2 rounded-xl border border-transparent hover:bg-white cursor-pointer transition">
+              <input type="radio" name="q2" value="correct" class="mt-0.5 accent-indigo-600">
+              <span class="text-slate-700 font-semibold">하나의 대각선 선분을 <span class="text-amber-600 font-bold">양 끝의 두 꼭짓점에서 각각 1번씩 총 2번 중복해서 세었기 때문</span></span>
+            </label>
+            <label class="flex items-start gap-2 p-2 rounded-xl border border-transparent hover:bg-white cursor-pointer transition">
+              <input type="radio" name="q2" value="wrong2" class="mt-0.5 accent-indigo-600">
+              <span class="text-slate-600">다각형을 반으로 접으면 선이 겹쳐지기 때문에</span>
+            </label>
+          </div>
+          <div id="q2Feedback" class="mt-2 text-xs font-bold hidden p-2 rounded-lg"></div>
+        </div>
+
+        <button onclick="checkAnswers()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs md:text-sm font-bold shadow-xs transition">
+          💡 내 설명 확인하기
+        </button>
+
+      </div>
+
+      <!-- Quick Summary Table Component -->
+      <div class="bg-white rounded-3xl p-4 border border-slate-200 shadow-sm overflow-hidden">
+        <h4 class="text-xs font-bold text-slate-700 mb-2.5 flex items-center justify-between">
+          <span>📊 다각형 대각선 수 비교표</span>
+          <span class="text-[11px] text-slate-400 font-normal">직접 확인해보세요</span>
+        </h4>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs text-center border-collapse">
+            <thead>
+              <tr class="bg-slate-100 text-slate-600 font-bold">
+                <th class="py-1.5 px-2 border-b border-slate-200">다각형</th>
+                <th class="py-1.5 px-2 border-b border-slate-200">꼭짓점(n)</th>
+                <th class="py-1.5 px-2 border-b border-slate-200">한 점(n-3)</th>
+                <th class="py-1.5 px-2 border-b border-slate-200">단순 곱 n(n-3)</th>
+                <th class="py-1.5 px-2 border-b border-slate-200 text-indigo-700">대각선 총수</th>
+              </tr>
+            </thead>
+            <tbody id="summaryTableBody" class="divide-y divide-slate-100 font-medium">
+              <!-- Dynamically generated rows -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script>
+    /* Audio synthesizer for delightful educational feedback */
+    const SoundEffects = {
+      ctx: null,
+      enabled: true,
+      init() {
+        if (!this.ctx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            this.ctx = new AudioContextClass();
+          }
+        }
+      },
+      play(freq, type = 'sine', duration = 0.12, gain = 0.15) {
+        if (!this.enabled) return;
+        try {
+          this.init();
+          if (!this.ctx) return;
+          if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+          }
+          const osc = this.ctx.createOscillator();
+          const g = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          g.gain.setValueAtTime(gain, this.ctx.currentTime);
+          g.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+          osc.connect(g);
+          g.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch (e) {
+          console.warn("Audio unavailable", e);
+        }
+      },
+      pop() { this.play(520, 'sine', 0.1, 0.15); },
+      success() {
+        this.play(523.25, 'triangle', 0.1, 0.12);
+        setTimeout(() => this.play(659.25, 'triangle', 0.15, 0.12), 80);
+        setTimeout(() => this.play(783.99, 'triangle', 0.25, 0.12), 160);
+      },
+      warning() {
+        this.play(240, 'sawtooth', 0.15, 0.15);
+      },
+      merge() {
+        this.play(440, 'sine', 0.1, 0.15);
+        setTimeout(() => this.play(880, 'sine', 0.2, 0.15), 100);
+      }
+    };
+
+    /* App Global Reactive State */
+    const State = {
+      n: 5,                       // Polygon vertex count (3 ~ 10)
+      step: 1,                    // Current Active Step: 1, 2, 3
+      selectedBaseVertex: 0,      // Reference vertex in Step 1 (default 0: 'A')
+      step1Connected: new Set(),  // Set of target vertex indices connected in Step 1
+      step2ActiveVertices: new Set(), // Set of vertices that have shot diagonals
+      step3IsDeduped: false,      // Dedup toggle in Step 3
+      animating: false
+    };
+
+    const SVG_SIZE = 400;
+    const CENTER = 200;
+    const RADIUS = 145;
+
+    const POLYGON_NAMES = {
+      3: '삼각형', 4: '사각형', 5: '오각형', 6: '육각형', 7: '칠각형',
+      8: '팔각형', 9: '구각형', 10: '십각형'
+    };
+
+    /* Colors Palette for Step 2 distinct vertex diagonal rays */
+    const VERTEX_COLORS = [
+      '#4f46e5', '#0891b2', '#059669', '#d97706', '#dc2626',
+      '#7c3aed', '#db2777', '#2563eb', '#16a34a', '#ca8a04'
+    ];
+
+    function getVertexLabel(index) {
+      return String.fromCharCode(65 + (index % 26)); // A, B, C, D...
+    }
+
+    function computePolygonVertices(n) {
+      const vertices = [];
+      const angleOffset = -Math.PI / 2; // Start from top
+      for (let i = 0; i < n; i++) {
+        const theta = angleOffset + (2 * Math.PI * i) / n;
+        const x = CENTER + RADIUS * Math.cos(theta);
+        const y = CENTER + RADIUS * Math.sin(theta);
+        vertices.push({ index: i, label: getVertexLabel(i), x, y, theta });
+      }
+      return vertices;
+    }
+
+    function isNeighbor(i, j, n) {
+      if (i === j) return false;
+      const diff = Math.abs(i - j);
+      return diff === 1 || diff === n - 1;
+    }
+
+    function isDiagonal(i, j, n) {
+      return i !== j && !isNeighbor(i, j, n);
+    }
+
+    let toastTimeout = null;
+    function showToast(msg, type = 'info') {
+      const toast = document.getElementById('toastMessage');
+      clearTimeout(toastTimeout);
+      toast.innerText = msg;
+      
+      toast.className = "absolute bottom-6 px-4 py-2.5 rounded-2xl text-xs md:text-sm font-extrabold shadow-xl transition-all duration-300 pointer-events-none transform ";
+      if (type === 'error') {
+        toast.className += "bg-rose-600 text-white translate-y-0 opacity-100 scale-105";
+      } else if (type === 'success') {
+        toast.className += "bg-emerald-600 text-white translate-y-0 opacity-100 scale-105";
+      } else if (type === 'warning') {
+        toast.className += "bg-amber-600 text-white translate-y-0 opacity-100 scale-105";
+      } else {
+        toast.className += "bg-slate-900 text-white translate-y-0 opacity-100";
+      }
+
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0', 'scale-105');
+        toast.classList.add('opacity-0', 'translate-y-3');
+      }, 2400);
+    }
+
+    function renderSVG() {
+      const { n, step, selectedBaseVertex, step1Connected, step2ActiveVertices, step3IsDeduped } = State;
+      const vertices = computePolygonVertices(n);
+
+      const fillLayer = document.getElementById('polyFillLayer');
+      const borderLayer = document.getElementById('polyBorderLayer');
+      const diagLayer = document.getElementById('diagonalLayer');
+      const dupLayer = document.getElementById('duplicateOverlayLayer');
+      const vertexLayer = document.getElementById('vertexLayer');
+
+      // Clear layers
+      fillLayer.innerHTML = '';
+      borderLayer.innerHTML = '';
+      diagLayer.innerHTML = '';
+      dupLayer.innerHTML = '';
+      vertexLayer.innerHTML = '';
+
+      // 1. Polygon Fill & Perimeter Edges
+      const pointsString = vertices.map(v => `${v.x},${v.y}`).join(' ');
+      
+      const polyBg = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+      polyBg.setAttribute('points', pointsString);
+      polyBg.setAttribute('fill', '#f8fafc');
+      polyBg.setAttribute('stroke', '#cbd5e1');
+      polyBg.setAttribute('stroke-width', '2.5');
+      polyBg.setAttribute('stroke-linejoin', 'round');
+      fillLayer.appendChild(polyBg);
+
+      // Render polygon outline edges (sides/둘레)
+      for (let i = 0; i < n; i++) {
+        const next = (i + 1) % n;
+        const edge = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        edge.setAttribute('x1', vertices[i].x);
+        edge.setAttribute('y1', vertices[i].y);
+        edge.setAttribute('x2', vertices[next].x);
+        edge.setAttribute('y2', vertices[next].y);
+        edge.setAttribute('stroke', '#94a3b8');
+        edge.setAttribute('stroke-width', '3');
+        edge.setAttribute('stroke-linecap', 'round');
+        borderLayer.appendChild(edge);
+      }
+
+      // 2. Render Diagonals based on step
+      if (step === 1) {
+        // Render step 1 connected diagonals from base vertex
+        const vA = vertices[selectedBaseVertex];
+        step1Connected.forEach(targetIdx => {
+          const vB = vertices[targetIdx];
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', vA.x);
+          line.setAttribute('y1', vA.y);
+          line.setAttribute('x2', vB.x);
+          line.setAttribute('y2', vB.y);
+          line.setAttribute('stroke', '#4f46e5');
+          line.setAttribute('stroke-width', '3.5');
+          line.setAttribute('stroke-linecap', 'round');
+          line.setAttribute('class', 'animate-pulse');
+          diagLayer.appendChild(line);
+        });
+
+      } else if (step === 2) {
+        // Step 2: Show diagonals originating from active vertices with distinct colors
+        step2ActiveVertices.forEach(fromIdx => {
+          const vFrom = vertices[fromIdx];
+          const strokeColor = VERTEX_COLORS[fromIdx % VERTEX_COLORS.length];
+
+          for (let toIdx = 0; toIdx < n; toIdx++) {
+            if (isDiagonal(fromIdx, toIdx, n)) {
+              const vTo = vertices[toIdx];
+              // Offset slightly to demonstrate directed rays
+              const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+              line.setAttribute('x1', vFrom.x);
+              line.setAttribute('y1', vFrom.y);
+              line.setAttribute('x2', vTo.x);
+              line.setAttribute('y2', vTo.y);
+              line.setAttribute('stroke', strokeColor);
+              line.setAttribute('stroke-width', '2.5');
+              line.setAttribute('stroke-opacity', '0.75');
+              line.setAttribute('stroke-linecap', 'round');
+              diagLayer.appendChild(line);
+            }
+          }
+        });
+
+      } else if (step === 3) {
+        // Step 3: Duplicate visualizer / Deduplication transition
+        // Unique diagonals pairs (i < j)
+        for (let i = 0; i < n; i++) {
+          for (let j = i + 1; j < n; j++) {
+            if (isDiagonal(i, j, n)) {
+              const v1 = vertices[i];
+              const v2 = vertices[j];
+
+              if (!step3IsDeduped) {
+                // Show as double distinct shifted tracks: v1 -> v2 (blue) and v2 -> v1 (amber)
+                // Calculate normal vector for slight parallel offset
+                const dx = v2.x - v1.x;
+                const dy = v2.y - v1.y;
+                const len = Math.hypot(dx, dy) || 1;
+                const nx = -dy / len * 3.5;
+                const ny = dx / len * 3.5;
+
+                // Line 1: i -> j (forward)
+                const line1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line1.setAttribute('x1', v1.x + nx);
+                line1.setAttribute('y1', v1.y + ny);
+                line1.setAttribute('x2', v2.x + nx);
+                line1.setAttribute('y2', v2.y + ny);
+                line1.setAttribute('stroke', '#3b82f6');
+                line1.setAttribute('stroke-width', '2.5');
+                line1.setAttribute('stroke-linecap', 'round');
+                diagLayer.appendChild(line1);
+
+                // Line 2: j -> i (backward/duplicate)
+                const line2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line2.setAttribute('x1', v1.x - nx);
+                line2.setAttribute('y1', v1.y - ny);
+                line2.setAttribute('x2', v2.x - nx);
+                line2.setAttribute('y2', v2.y - ny);
+                line2.setAttribute('stroke', '#f59e0b');
+                line2.setAttribute('stroke-width', '2.5');
+                line2.setAttribute('stroke-linecap', 'round');
+                diagLayer.appendChild(line2);
+
+              } else {
+                // Deduped: Merged single elegant indigo solid line
+                const mergedLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                mergedLine.setAttribute('x1', v1.x);
+                mergedLine.setAttribute('y1', v1.y);
+                mergedLine.setAttribute('x2', v2.x);
+                mergedLine.setAttribute('y2', v2.y);
+                mergedLine.setAttribute('stroke', '#6366f1');
+                mergedLine.setAttribute('stroke-width', '3.5');
+                mergedLine.setAttribute('stroke-linecap', 'round');
+                diagLayer.appendChild(mergedLine);
+              }
+            }
+          }
+        }
+      }
+
+      // 3. Render Vertices (Interactive Nodes)
+      vertices.forEach(v => {
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('class', 'cursor-pointer select-none transition-transform');
+        g.setAttribute('onclick', `handleVertexClick(${v.index})`);
+
+        // Vertex Circle styling
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', v.x);
+        circle.setAttribute('cy', v.y);
+        circle.setAttribute('r', '17');
+
+        // Ring indicator for Step 1
+        if (step === 1) {
+          if (v.index === selectedBaseVertex) {
+            circle.setAttribute('fill', '#4f46e5');
+            circle.setAttribute('stroke', '#818cf8');
+            circle.setAttribute('stroke-width', '4');
+
+            // Animated ping ring
+            const pulse = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            pulse.setAttribute('cx', v.x);
+            pulse.setAttribute('cy', v.y);
+            pulse.setAttribute('r', '24');
+            pulse.setAttribute('fill', 'none');
+            pulse.setAttribute('stroke', '#6366f1');
+            pulse.setAttribute('stroke-width', '2');
+            pulse.setAttribute('class', 'pulse-effect');
+            g.appendChild(pulse);
+
+          } else if (isNeighbor(v.index, selectedBaseVertex, n)) {
+            // Neighbor vertex warning visual hint
+            circle.setAttribute('fill', '#fee2e2');
+            circle.setAttribute('stroke', '#ef4444');
+            circle.setAttribute('stroke-width', '2');
+          } else if (step1Connected.has(v.index)) {
+            circle.setAttribute('fill', '#10b981');
+            circle.setAttribute('stroke', '#a7f3d0');
+            circle.setAttribute('stroke-width', '3');
+          } else {
+            circle.setAttribute('fill', '#ffffff');
+            circle.setAttribute('stroke', '#64748b');
+            circle.setAttribute('stroke-width', '2.5');
+          }
+        } else if (step === 2) {
+          if (step2ActiveVertices.has(v.index)) {
+            const color = VERTEX_COLORS[v.index % VERTEX_COLORS.length];
+            circle.setAttribute('fill', color);
+            circle.setAttribute('stroke', '#ffffff');
+            circle.setAttribute('stroke-width', '3');
+          } else {
+            circle.setAttribute('fill', '#f1f5f9');
+            circle.setAttribute('stroke', '#94a3b8');
+            circle.setAttribute('stroke-width', '2');
+          }
+        } else {
+          // Step 3
+          circle.setAttribute('fill', step3IsDeduped ? '#4f46e5' : '#f59e0b');
+          circle.setAttribute('stroke', '#ffffff');
+          circle.setAttribute('stroke-width', '3');
+        }
+
+        // Vertex Text Label
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', v.x);
+        text.setAttribute('y', v.y + 5);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('font-size', '13');
+        text.setAttribute('font-weight', 'bold');
+
+        if (step === 1 && v.index === selectedBaseVertex) {
+          text.setAttribute('fill', '#ffffff');
+        } else if (step === 2 && step2ActiveVertices.has(v.index)) {
+          text.setAttribute('fill', '#ffffff');
+        } else if (step === 3) {
+          text.setAttribute('fill', '#ffffff');
+        } else {
+          text.setAttribute('fill', '#334155');
+        }
+        text.textContent = v.label;
+
+        // Hover expand hit area
+        const hitArea = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        hitArea.setAttribute('cx', v.x);
+        hitArea.setAttribute('cy', v.y);
+        hitArea.setAttribute('r', '24');
+        hitArea.setAttribute('fill', 'transparent');
+
+        g.appendChild(circle);
+        g.appendChild(text);
+        g.appendChild(hitArea);
+        vertexLayer.appendChild(g);
+      });
+    }
+
+    function handleVertexClick(clickedIdx) {
+      const { n, step, selectedBaseVertex, step1Connected, step2ActiveVertices } = State;
+      const clickedLabel = getVertexLabel(clickedIdx);
+      const baseLabel = getVertexLabel(selectedBaseVertex);
+
+      if (step === 1) {
+        // Step 1: Discover why we subtract 3
+        if (clickedIdx === selectedBaseVertex) {
+          SoundEffects.warning();
+          showToast(`❌ 점 ${clickedLabel}은 자기 자신이에요! 자기 자신과는 대각선을 그을 수 없어요. (1개 제외)`, 'warning');
+          return;
+        }
+
+        if (isNeighbor(clickedIdx, selectedBaseVertex, n)) {
+          SoundEffects.warning();
+          showToast(`⚠️ 점 ${clickedLabel}은 바로 옆 이웃이에요! 이으면 대각선이 아니라 다각형의 둘레(변)가 돼요! (양옆 2개 제외)`, 'error');
+          return;
+        }
+
+        // Valid Diagonal!
+        if (step1Connected.has(clickedIdx)) {
+          step1Connected.delete(clickedIdx);
+          SoundEffects.pop();
+          showToast(`대각선 ${baseLabel} - ${clickedLabel} 연결을 해제했습니다.`);
+        } else {
+          step1Connected.add(clickedIdx);
+          SoundEffects.pop();
+          showToast(`🎯 대각선 ${baseLabel} - ${clickedLabel} 연결 성공! (나 자신과 양옆 3개를 뺀 나머지 점!)`, 'success');
+        }
+
+        const maxDiags = Math.max(0, n - 3);
+        if (step1Connected.size === maxDiags && maxDiags > 0) {
+          SoundEffects.success();
+          showToast(`🎉 축하해요! 꼭짓점 ${baseLabel}에서 그을 수 있는 대각선 ${maxDiags}개를 모두 찾았습니다!`, 'success');
+        }
+
+        updateUI();
+
+      } else if (step === 2) {
+        // Step 2: Toggle shooting from this vertex
+        if (step2ActiveVertices.has(clickedIdx)) {
+          step2ActiveVertices.delete(clickedIdx);
+          SoundEffects.pop();
+        } else {
+          step2ActiveVertices.add(clickedIdx);
+          SoundEffects.pop();
+        }
+
+        if (step2ActiveVertices.size === n) {
+          SoundEffects.success();
+          showToast(`🌟 모든 꼭짓점(${n}개)에서 대각선을 각각 ${n-3}개씩 쏘았습니다! 총 ${n*(n-3)}가닥!`, 'success');
+        }
+        updateUI();
+
+      } else if (step === 3) {
+        toggleDedupMode();
+      }
+    }
+
+    /* Auto connect all diagonals from base vertex in Step 1 */
+    function autoConnectCurrentVertex() {
+      const { n, selectedBaseVertex, step1Connected } = State;
+      for (let i = 0; i < n; i++) {
+        if (isDiagonal(selectedBaseVertex, i, n)) {
+          step1Connected.add(i);
+        }
+      }
+      SoundEffects.success();
+      showToast(`모든 가능한 대각선(${n-3}개)이 한 번에 연결되었습니다!`, 'success');
+      updateUI();
+    }
+
+    /* Step 2: Sequential automatic diagonal shooting animation */
+    function playAllStep2Animation() {
+      const { n } = State;
+      State.step2ActiveVertices.clear();
+      let current = 0;
+      State.animating = true;
+
+      const interval = setInterval(() => {
+        if (current >= n) {
+          clearInterval(interval);
+          State.animating = false;
+          SoundEffects.success();
+          showToast(`모든 꼭짓점(${n}개) 연결 완료! 총 ${n * (n - 3)}가닥 생성!`, 'success');
+          return;
+        }
+        State.step2ActiveVertices.add(current);
+        SoundEffects.pop();
+        updateUI();
+        current++;
+      }, 300);
+    }
+
+    function resetStep2() {
+      State.step2ActiveVertices.clear();
+      SoundEffects.pop();
+      updateUI();
+    }
+
+    /* Step 3: Toggle Deduplication merge state */
+    function toggleDedupMode() {
+      State.step3IsDeduped = !State.step3IsDeduped;
+      if (State.step3IsDeduped) {
+        SoundEffects.merge();
+        showToast(`✂️ 선분 AC와 CA처럼 겹친 2가닥을 1개로 합쳤습니다! (÷ 2 적용 완료)`, 'success');
+      } else {
+        SoundEffects.pop();
+        showToast(`양방향으로 두 번씩 센 원래 상태(2배)로 되돌렸습니다.`);
+      }
+      updateUI();
+    }
+
+    function setStep(newStep) {
+      State.step = newStep;
+      SoundEffects.pop();
+
+      // UI Tab highlights
+      document.querySelectorAll('.step-tab').forEach((tab, idx) => {
+        const stepNum = idx + 1;
+        const badge = tab.querySelector('span:first-child');
+        if (stepNum === newStep) {
+          tab.className = "step-tab py-2.5 px-2 rounded-xl font-bold text-xs md:text-sm text-center transition flex flex-col sm:flex-row items-center justify-center gap-1 bg-white text-indigo-700 shadow-sm";
+          badge.className = "w-5 h-5 rounded-full bg-indigo-600 text-white text-xs flex items-center justify-center font-black";
+        } else {
+          tab.className = "step-tab py-2.5 px-2 rounded-xl font-bold text-xs md:text-sm text-center transition flex flex-col sm:flex-row items-center justify-center gap-1 text-slate-600 hover:text-slate-900";
+          badge.className = "w-5 h-5 rounded-full bg-slate-400 text-white text-xs flex items-center justify-center font-black";
+        }
+      });
+
+      // Prepare states per step
+      if (newStep === 2) {
+        // Automatically activate at least vertex 0 if empty
+        if (State.step2ActiveVertices.size === 0) {
+          State.step2ActiveVertices.add(0);
+        }
+      } else if (newStep === 3) {
+        State.step3IsDeduped = false;
+      }
+
+      updateUI();
+    }
+
+    function setN(newN) {
+      newN = parseInt(newN);
+      if (newN < 3) newN = 3;
+      if (newN > 10) newN = 10;
+      State.n = newN;
+      State.selectedBaseVertex = 0;
+      State.step1Connected.clear();
+      State.step2ActiveVertices.clear();
+      if (State.step === 2) State.step2ActiveVertices.add(0);
+      State.step3IsDeduped = false;
+
+      // Update Slider and Presets
+      document.getElementById('nSlider').value = newN;
+      document.getElementById('nBadge').innerText = newN;
+
+      document.querySelectorAll('.n-btn').forEach(btn => {
+        const btnN = parseInt(btn.dataset.n);
+        if (btnN === newN) {
+          btn.className = "n-btn px-2.5 py-1 text-xs font-bold rounded-lg bg-indigo-600 text-white border border-indigo-600 transition";
+        } else {
+          btn.className = "n-btn px-2.5 py-1 text-xs font-bold rounded-lg border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50 transition";
+        }
+      });
+
+      SoundEffects.pop();
+      updateUI();
+      renderSummaryTable();
+    }
+
+    function updateUI() {
+      const { n, step, selectedBaseVertex, step1Connected, step2ActiveVertices, step3IsDeduped } = State;
+      const baseLabel = getVertexLabel(selectedBaseVertex);
+      const name = POLYGON_NAMES[n] || `${n}각형`;
+      const oneVertexDiag = Math.max(0, n - 3);
+      const totalRaw = n * oneVertexDiag;
+      const totalDeduped = totalRaw / 2;
+
+      // Update Header Badges
+      document.querySelectorAll('.nDisplay').forEach(el => el.innerText = n);
+      document.getElementById('shapeNameBadge').innerText = `${name} (n=${n})`;
+
+      // Instructions Per Step
+      const instTitle = document.getElementById('instructionTitle');
+      const instSub = document.getElementById('instructionSub');
+
+      if (step === 1) {
+        instTitle.innerHTML = `👉 기준 꼭짓점 <strong class="text-indigo-700 underline font-black">${baseLabel}</strong>에서 다른 점들을 직접 눌러 대각선을 그어보세요!`;
+        instSub.innerHTML = `전체 ${n}개 꼭짓점 중 <strong class="text-rose-600">[나 자신 1개]</strong>과 <strong class="text-rose-600">[이웃한 점 2개]</strong> 총 3개는 왜 제외될까요?`;
+      } else if (step === 2) {
+        instTitle.innerHTML = `👉 각 꼭짓점을 클릭하여 대각선들을 사방으로 쏘아보세요!`;
+        instSub.innerHTML = `꼭짓점 ${n}개가 각각 (${n}-3)=${oneVertexDiag}개씩 쏘면 총 <strong class="text-emerald-700 font-black">${totalRaw}개</strong>의 대각선 선분이 나와요.`;
+      } else {
+        instTitle.innerHTML = step3IsDeduped 
+          ? `🎉 중복이 제거되었습니다! 실제 대각선 개수는 정확히 절반인 <strong class="text-amber-700 font-black">${totalDeduped}개</strong>입니다.`
+          : `🔍 자세히 보세요! 같은 선(예: A→C 와 C→A)이 <strong class="text-amber-600 font-black">2번씩</strong> 겹쳐서 세어졌어요!`;
+        instSub.innerHTML = step3IsDeduped 
+          ? `선분 1개의 양 끝 점 2곳에서 셌으므로 2로 나누어 준 공식이 완성됩니다.`
+          : `'두 겹을 하나로 합치기 (÷2)' 버튼을 눌러보세요!`;
+      }
+
+      // Stage Controls Visibility
+      document.getElementById('step1Controls').classList.toggle('hidden', step !== 1);
+      document.getElementById('step2Controls').classList.toggle('hidden', step !== 2);
+      document.getElementById('step3Controls').classList.toggle('hidden', step !== 3);
+
+      if (step === 1) {
+        document.getElementById('currentStep1DiagCount').innerText = step1Connected.size;
+        document.getElementById('maxStep1DiagCount').innerText = oneVertexDiag;
+      } else if (step === 2) {
+        document.getElementById('connectedVerticesCount').innerText = step2ActiveVertices.size;
+      } else if (step === 3) {
+        const toggleBtn = document.getElementById('dedupToggleBtn');
+        const statusText = document.getElementById('dedupStatusText');
+        if (step3IsDeduped) {
+          toggleBtn.innerHTML = `<span>↩️ 원래 두 겹 상태로 보기</span>`;
+          toggleBtn.className = "px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-slate-700 hover:bg-slate-800 text-white shadow-xs transition";
+          statusText.innerHTML = `<span class="text-indigo-600 font-extrabold">2로 나누어 정리 완료! (${totalDeduped}개)</span>`;
+        } else {
+          toggleBtn.innerHTML = `<span>✂️ 두 겹을 하나로 합치기 (÷2)</span>`;
+          toggleBtn.className = "px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-white shadow-xs transition";
+          statusText.innerHTML = `<span class="text-amber-700 font-extrabold">두 번씩 센 상태 (${totalRaw}가닥)</span>`;
+        }
+      }
+
+      // Mathematical Formula Box Highlights
+      const box1 = document.getElementById('formulaBox1');
+      const box2 = document.getElementById('formulaBox2');
+      const box3 = document.getElementById('formulaBox3');
+
+      box1.className = `p-3 rounded-2xl transition-all ${step === 1 ? 'bg-white/15 border-2 border-amber-400 shadow-md' : 'bg-white/5 border border-white/10 opacity-70'}`;
+      box2.className = `p-3 rounded-2xl transition-all ${step === 2 ? 'bg-white/15 border-2 border-emerald-400 shadow-md' : 'bg-white/5 border border-white/10 opacity-70'}`;
+      box3.className = `p-3 rounded-2xl transition-all ${step === 3 ? 'bg-white/15 border-2 border-yellow-300 shadow-md' : 'bg-white/5 border border-white/10 opacity-70'}`;
+
+      document.getElementById('f1Math').innerText = `${n} - 3 = ${oneVertexDiag}개`;
+      document.getElementById('f2Math').innerText = `${n} × ${oneVertexDiag} = ${totalRaw}개`;
+      document.getElementById('f2EachCount').innerText = oneVertexDiag;
+      document.getElementById('f3Math').innerText = `${totalRaw} ÷ 2 = ${totalDeduped}개`;
+
+      // Re-render Canvas
+      renderSVG();
+    }
+
+    function renderSummaryTable() {
+      const tbody = document.getElementById('summaryTableBody');
+      tbody.innerHTML = '';
+
+      for (let k = 3; k <= 10; k++) {
+        const tr = document.createElement('tr');
+        const isCurrent = k === State.n;
+        tr.className = isCurrent 
+          ? 'bg-indigo-50/80 font-bold text-indigo-900 border-l-4 border-indigo-600' 
+          : 'hover:bg-slate-50 transition cursor-pointer text-slate-700';
+
+        tr.onclick = () => setN(k);
+
+        const oneVertex = Math.max(0, k - 3);
+        const raw = k * oneVertex;
+        const total = raw / 2;
+
+        tr.innerHTML = `
+          <td class="py-2 px-2">${POLYGON_NAMES[k]}</td>
+          <td class="py-2 px-2">${k}</td>
+          <td class="py-2 px-2 text-indigo-600">${oneVertex}</td>
+          <td class="py-2 px-2 text-slate-500">${raw}</td>
+          <td class="py-2 px-2 font-black ${isCurrent ? 'text-indigo-700 text-sm' : 'text-slate-800'}">${total}개</td>
+        `;
+        tbody.appendChild(tr);
+      }
+    }
+
+    function checkAnswers() {
+      const q1Selected = document.querySelector('input[name="q1"]:checked');
+      const q2Selected = document.querySelector('input[name="q2"]:checked');
+
+      const fb1 = document.getElementById('q1Feedback');
+      const fb2 = document.getElementById('q2Feedback');
+
+      fb1.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'bg-rose-50', 'text-rose-800');
+      fb2.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'bg-rose-50', 'text-rose-800');
+
+      let allCorrect = true;
+
+      // Question 1 Check
+      if (!q1Selected) {
+        fb1.innerText = '⚠️ 1번 문제의 보기를 선택해주세요!';
+        fb1.className = 'mt-2 text-xs font-bold p-2 rounded-lg bg-amber-50 text-amber-800 block';
+        allCorrect = false;
+      } else if (q1Selected.value === 'correct') {
+        fb1.innerHTML = '👏 정답입니다! 꼭짓점 전체 n개 중 <strong>[나 자신(1개)]</strong>과 <strong>[양옆 이웃한 두 점(2개)]</strong> 총 3개는 이으면 둘레(변)가 되므로 3을 뺍니다!';
+        fb1.className = 'mt-2 text-xs font-bold p-2 rounded-lg bg-emerald-50 text-emerald-800 block';
+      } else {
+        fb1.innerHTML = '다시 생각해볼까요? 꼭짓점 A에서 선을 그을 때 자기 자신과 바로 옆 두 점을 이으면 변이 된답니다!';
+        fb1.className = 'mt-2 text-xs font-bold p-2 rounded-lg bg-rose-50 text-rose-800 block';
+        allCorrect = false;
+      }
+
+      // Question 2 Check
+      if (!q2Selected) {
+        fb2.innerText = '⚠️ 2번 문제의 보기를 선택해주세요!';
+        fb2.className = 'mt-2 text-xs font-bold p-2 rounded-lg bg-amber-50 text-amber-800 block';
+        allCorrect = false;
+      } else if (q2Selected.value === 'correct') {
+        fb2.innerHTML = '👏 완벽합니다! 선분 AC는 A에서도 세고 C에서도 세어서 정확히 2번 중복되기 때문에 <strong>2로 나누어 주는 것</strong>입니다!';
+        fb2.className = 'mt-2 text-xs font-bold p-2 rounded-lg bg-emerald-50 text-emerald-800 block';
+      } else {
+        fb2.innerHTML = '다시 한 번 3단계의 합치기 버튼을 관찰해 보세요! 선분 하나당 양쪽 끝에서 몇 번 세어졌을까요?';
+        fb2.className = 'mt-2 text-xs font-bold p-2 rounded-lg bg-rose-50 text-rose-800 block';
+        allCorrect = false;
+      }
+
+      if (allCorrect) {
+        SoundEffects.success();
+        showToast('🎉 두 문제를 모두 정확하게 설명하셨습니다! 이제 공식을 완전히 이해했어요!', 'success');
+      } else {
+        SoundEffects.warning();
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Slider input listener
+      const nSlider = document.getElementById('nSlider');
+      nSlider.addEventListener('input', (e) => {
+        setN(e.target.value);
+      });
+
+      // Sound toggle
+      const soundBtn = document.getElementById('soundToggleBtn');
+      soundBtn.addEventListener('click', () => {
+        SoundEffects.enabled = !SoundEffects.enabled;
+        document.getElementById('soundIcon').innerText = SoundEffects.enabled ? '🔊' : '🔇';
+        document.getElementById('soundText').innerText = SoundEffects.enabled ? '효과음 켜짐' : '효과음 꺼짐';
+      });
+
+      // Reset App
+      document.getElementById('resetAppBtn').addEventListener('click', () => {
+        setN(5);
+        setStep(1);
+        document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+        document.getElementById('q1Feedback').classList.add('hidden');
+        document.getElementById('q2Feedback').classList.add('hidden');
+        SoundEffects.pop();
+        showToast('처음 상태로 초기화되었습니다.');
+      });
+
+      // Initial Setup
+      setN(5);
+      setStep(1);
+      renderSummaryTable();
+    });
+  </script>
+</body>
+</html>
